@@ -1,0 +1,292 @@
+<HTML>
+<!DOCTYPE html>
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100;500;600&family=Lato:wght@900&family=Roboto:wght@300&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script src="https://kit.fontawesome.com/58be36023a.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="../dist/fullpage.css" />
+	<link rel="stylesheet" type="text/css" href="examples.css" />
+
+    <link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
+
+
+
+    <script>
+
+        $(document).ready(function(){
+          // Add smooth scrolling to all links
+          $("a").on('click', function(event) {
+
+            // Make sure this.hash has a value before overriding default behavior
+            if (this.hash !== "") {
+              // Prevent default anchor click behavior
+              event.preventDefault();
+
+              // Store hash
+              var hash = this.hash;
+
+              // Using jQuery's animate() method to add smooth page scroll
+              // The optional number (800) specifies the number of milliseconds it takes to scroll to the specified area
+              $('html, body').animate({
+                scrollTop: $(hash).offset().top
+              }, 800, function(){
+
+                // Add hash (#) to URL when done scrolling (default click behavior)
+                window.location.hash = hash;
+              });
+            } // End if
+          });
+        });
+
+
+
+</script>
+
+
+</head>
+
+
+<body>
+
+<div class="main" id="section1">
+
+    <div class="header" id="myHeader">
+
+        <img src="static/logo.png" alt="logo" style="width:55px; margin-top:22px; margin-left: 20px; float:left;"/>
+        <img src="static/powered.png" alt="logo" style="width: 180px; margin-top:22px; margin-left: 20px; float:left;"/>
+
+
+        <div class="content">
+
+            <h1 style="font-size:51px; text-align: center; font-weight:100;
+            font-family: 'IBM Plex Sans'; color:white;">Foundation Talent Acquisition Bias Detector</h1>
+
+            <h1  align=center style="font-size:18px;font-family: 'IBM Plex Sans', sans-serif; font-style: light; font-weight:100;
+            margin-bottom: 2em; color:white;">Find subtle bias in your job descriptions to keep IBM an equal opportunites employer for early professionals.</h1>
+
+        </div>
+        <div class="btndiv">
+        <a class="btn" href="#section2" style="text-decoration:none;font-weight:100; margin: 0px; font-family: 'Roboto'; color:#2986c4; font-size:20px">
+           Let's get started!
+        </a>
+        </div>
+  </div>
+
+
+
+
+   <div class="dotscontain" style="width:100%; display: flex; justify-content: center; position: absolute; bottom: 50px;">
+       <div class="dot1"></div>
+       <div class="dot2"></div>
+       <div class="dot3"></div>
+   </div>
+
+
+
+</div>
+
+<div class="main" id="section2">
+
+    <h1 style="font-size:30px; text-align: center;
+    font-family: 'IBM Plex Sans'; color:white;font-weight:100;">Enter your role description:</h1>
+
+        <div class="textarea">
+                <textarea class="jobdesc" id="jobdesc" name="jobdesc" placeholder= " Paste your role description here..."></textarea>
+        </div>
+
+        <h1  align=center style="font-size:18px;font-family: 'IBM Plex Sans', sans-serif; font-style: light;font-weight:100;
+                        margin-top: 45px; margin-bottom: 20px; color:white;">Or, check an existing role description:</h1>
+        <div class="urldiv">
+            <input type="text" class="url"  placeholder= "Paste the URL here..." name="url"> <br><br>
+        </div>
+
+        <input onclick="analyse();section3();replaceText();"  id=analyse value="Let's Analyse!" class="btn2" style="text-decoration:none; font-family:
+        'Roboto'; margin-bottom: 60px; margin-top:50px; color:#2986c4; font-size:20px">
+
+        <script src="scrollIntoView.js"></script>
+
+
+    <script>
+        function analyse(submit){
+            console.log('in function')
+            var value = $('.jobdesc').val();
+            console.log(JSON.stringify(value));
+            $.ajax({
+              type: 'POST',
+              url: "http://127.0.0.1:5000/train/",
+              data: JSON.stringify(value),
+              contentType: 'application/json',
+              success: function(data){
+                console.log('success', data);
+                $("#result").text(data.message)
+                $("#jobdesclength").text(data.jobdesc)
+                $("#jobdesc2").text(value)
+                Object.entries(data.emotionRating).forEach(([key, value]) => {
+                    console.log(`${key}: ${value}`);
+                    $('#' + `${key}` + 'bar').width(`${value}`*100 + '%');
+                });
+                highlightWords(data.matches);
+              }
+            });
+        }
+
+        function highlightWords(matches) {
+            // create a regular expression matching any of these words, using 'g' flag to match all instances
+            var regexp = new RegExp('(' + matches.join('|') + ')', 'ig');
+
+            $('.jobdesc2').each(function(num, elem) {
+                var text = $(elem).text();
+                // use string.replace with $& notation to indicate whatever was matched
+                text = text.replace(regexp, '<span class="biasWord">$&</span>');
+                $(elem).html(text);
+            });
+        }
+
+
+        function section3() {
+          var elmnt = document.getElementById("section3");
+          elmnt.scrollIntoView({ behavior: 'smooth' });
+        }
+
+
+<!--        seamless.polyfill();-->
+<!--            // or use specific methods-->
+<!--            seamless.windowScrollBy(window, { behavior: "smooth", top: 200, left: 0 });-->
+
+<!--            seamless.elementScrollIntoView(document.querySelector("#section3"), {-->
+<!--                behavior: "smooth",-->
+<!--                block: "center",-->
+<!--                inline: "center",-->
+<!--            });-->
+    </script>
+
+
+   <div class="dotscontain2">
+       <div class="dot21"></div>
+       <div class="dot22"></div>
+       <div class="dot23"></div>
+   </div>
+</div>
+
+
+
+
+<div class="main" id="section3">
+     <p  class="results" style="font-size:52px; text-align: center;
+                  font-family: 'IBM Plex Sans'; color:white; margin:0px; font-weight:100; padding-top:65px;"> Results Dashboard</p>
+
+    <div class="section3contain">
+
+        <div class="lefthalf" style="margin:0; width:30%; display: inline-block; text-align: left;">
+            <h1 id="result" style="font-size:18px; font-weight:100;  text-align: left;
+            font-family: 'IBM Plex Sans'; color:white;"></h1>
+            <div class="textarea">
+                <p class="jobdesc2" id=jobdesc2></p>
+            </div>
+                <input onclick="section2()" id=analyse2 value="Analyse Again!" class="btn2"
+                       style="text-decoration:none; font-family: 'Roboto'; color:#2986c4; font-size:18px;
+                        margin-top:30px; width:50%">
+            <div class="link" style="padding:30px; justify-content: center; text-align:center;">
+                <a style="font-size:15px; font-weight:100; text-decoration: underline; text-align: left;
+                font-family: 'IBM Plex Sans'; color:white; text-align:center;"
+                   href="http://www.fortefoundation.org/site/DocServer/gendered_wording_JPSP.pdf?docID=16121">
+                    Why are these words biased?</a>
+            </div>
+        </div>
+
+
+        <script>
+
+            function section2() {
+          var elmnt = document.getElementById("section2");
+          elmnt.scrollIntoView({ behavior: 'smooth' });
+        }
+
+
+        </script>
+        <div class="middle" style="margin:0; width:15%; display: inline-block; text-align: left;">
+
+            <div class="emotionRating">
+                <h1 class="emotionTitle" style="font-size:18px;  text-align: center; font-weight:100;
+                font-family: 'IBM Plex Sans'; color:white;">
+                    Joy
+                </h1>
+                <div class="emotionProgressBar">
+                    <div class="emotionProgressBarInner" id="joybar"></div>
+                </div>
+            </div>
+            <div class="emotionRating">
+                <h1 class="emotionTitle" style="font-size:18px;  text-align: center; font-weight:100;
+                font-family: 'IBM Plex Sans'; color:white;">
+                    Sadness
+                </h1>
+                <div class="emotionProgressBar">
+                    <div class="emotionProgressBarInner" id="sadnessbar"></div>
+                </div>
+            </div>
+            <div class="emotionRating">
+                <h1 class="emotionTitle" style="font-size:18px;  text-align: center; font-weight:100;
+                font-family: 'IBM Plex Sans'; color:white;">
+                    Fear
+                </h1>
+                <div class="emotionProgressBar">
+                    <div class="emotionProgressBarInner" id="fearbar"></div>
+                </div>
+            </div><div class="emotionRating">
+                <h1 class="emotionTitle" style="font-size:18px;  text-align: center; font-weight:100;
+                font-family: 'IBM Plex Sans'; color:white;">
+                    Disgust
+                </h1>
+                <div class="emotionProgressBar">
+                    <div class="emotionProgressBarInner" id="disgustbar"></div>
+                </div>
+            </div><div class="emotionRating">
+                <h1 class="emotionTitle" style="font-size:18px;  text-align: center; font-weight:100;
+                font-family: 'IBM Plex Sans'; color:white;">
+                    Anger
+                </h1>
+                <div class="emotionProgressBar">
+                    <div class="emotionProgressBarInner" id="angerbar"></div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+        <div class="righthalf" style="margin:0; width:30%;  display: inline-block; text-align: left;">
+            <div class="text" style="font-size:18px; font-weight:100; text-align: left;
+                font-family: 'IBM Plex Sans'; color:white;">
+                <span class="para" style="font-weight:100;">A role post should be long enough to be informative, but short
+                    enough to keep a candidate's attention. Right now, the job descriptions that perform best tend to fall
+                    between</span><span style="font-weight:500"> 300 and 660 words total. Yours is <span id="jobdesclength"></span><span>.</span></span></span>
+
+                <p class="para" style="font-weight:100;">It may be good to double-check the role description for any company jargon.</p>
+                <p class="para" style="font-weight:100;" >Our literacy levels change as we age. In order to keep your role description
+                    inclusive to most ages, try these tips in writing accessibly: </p>
+                   <span style="font-weight:500;"> - Keep sentences short.</span> <br>
+                   <span style="font-weight:500;"> - Keep paragraphs short. </span><br>
+                   <span style="font-weight:500;"> - Use white space to reduce visual ‘noise’. </span>
+
+
+            </div>
+        </div>
+
+
+    </div>
+
+     <div class="34" style=" width: 100%; margin:0; padding:0;">
+                <div class="dotscontain3">
+                       <div class="dot31"></div>
+                       <div class="dot32"></div>
+                       <div class="dot33"></div>
+                </div>
+        </div>
+</div>
+
+
+</body>
+</html>
